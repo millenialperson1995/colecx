@@ -2,6 +2,7 @@
 
 import { useState, useRef, useEffect } from 'react'
 import { Button } from '@/components/ui/button'
+import { useToast } from '@/hooks/use-toast'
 
 interface Collection {
   id?: number
@@ -17,13 +18,16 @@ interface Collection {
 interface CollectionListProps {
   collections: Collection[]
   onDelete: (id: number) => void
+  onSync: () => Promise<void>
 }
 
-export function CollectionList({ collections, onDelete }: CollectionListProps) {
+export function CollectionList({ collections, onDelete, onSync }: CollectionListProps) {
   const [isOpen, setIsOpen] = useState(false)
   const [sortBy, setSortBy] = useState<'recent' | 'name'>('recent')
   const [filterSynced, setFilterSynced] = useState<'all' | 'synced' | 'pending'>('all')
+  const [isSyncing, setIsSyncing] = useState(false)
   const panelRef = useRef<HTMLDivElement>(null)
+  const { toast } = useToast()
 
   const filteredCollections = collections.filter((c) => {
     if (filterSynced === 'synced') return c.synced
@@ -66,9 +70,22 @@ export function CollectionList({ collections, onDelete }: CollectionListProps) {
   }
 
   const syncPending = async () => {
-    // Aqui você implementaria a sincronização com seu backend
-    console.log('[v0] Syncing pending collections...')
-    // toast.promise(syncPromise, { ... })
+    setIsSyncing(true)
+    try {
+      await onSync()
+      toast({
+        title: 'Sincronização concluída',
+        description: 'Todas as coletas pendentes foram sincronizadas.',
+      })
+    } catch (error) {
+      toast({
+        title: 'Erro de Sincronização',
+        description: 'Não foi possível sincronizar as coletas.',
+        variant: 'destructive'
+      })
+    } finally {
+      setIsSyncing(false)
+    }
   }
 
   const handleDelete = (id: number | undefined) => {
@@ -95,7 +112,7 @@ export function CollectionList({ collections, onDelete }: CollectionListProps) {
       {/* Toggle Button */}
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className={`fixed bottom-6 right-6 bg-blue-600 hover:bg-blue-700 text-white rounded-full w-14 h-14 flex items-center justify-center shadow-lg active:scale-95 transition-transform z-40 ${
+        className={`fixed bottom-6 right-6 bg-blue-600 hover:bg-blue-700 text-white rounded-full w-14 h-14 flex items-center justify-center shadow-lg active:scale-95 transition-transform z-[1000] ${
           isOpen ? 'scale-0' : 'scale-100'
         }`}
         aria-label="Mostrar histórico de coletas"
@@ -112,12 +129,12 @@ export function CollectionList({ collections, onDelete }: CollectionListProps) {
 
       {/* Slide-out Panel */}
       {isOpen && (
-        <div className="fixed inset-0 bg-black/50 z-40 animate-in fade-in" onClick={() => setIsOpen(false)} />
+        <div className="fixed inset-0 bg-black/50 z-[1000] animate-in fade-in" onClick={() => setIsOpen(false)} />
       )}
 
       <div
         ref={panelRef}
-        className={`fixed right-0 top-0 h-screen w-full max-w-md bg-white dark:bg-slate-900 shadow-xl z-50 transform transition-transform duration-300 ease-in-out overflow-hidden flex flex-col ${
+        className={`fixed right-0 top-0 h-screen w-full max-w-md bg-white dark:bg-slate-900 shadow-xl z-[1001] transform transition-transform duration-300 ease-in-out overflow-hidden flex flex-col ${
           isOpen ? 'translate-x-0' : 'translate-x-full'
         }`}
       >
@@ -258,9 +275,10 @@ export function CollectionList({ collections, onDelete }: CollectionListProps) {
               variant="outline"
               size="sm"
               onClick={syncPending}
+              disabled={isSyncing}
               className="w-full text-yellow-600 hover:text-yellow-700 border-yellow-600 hover:bg-yellow-50 dark:hover:bg-yellow-950/20"
             >
-              Sincronizar Pendentes ({collections.filter((c) => !c.synced).length})
+              {isSyncing ? 'Sincronizando...' : `Sincronizar Pendentes (${collections.filter((c) => !c.synced).length})`}
             </Button>
           )}
 

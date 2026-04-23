@@ -30,7 +30,7 @@ function HomeContent() {
   const [selectedLocation, setSelectedLocation] = useState<{ lat: number; lng: number } | null>(null)
   const [isCentering, setIsCentering] = useState(false)
   const { location, accuracy, error: locationError } = useGeolocation()
-  const { collections, addCollection, deleteCollection, syncStatus } = useOfflineStorage()
+  const { collections, addCollection, deleteCollection, syncStatus, markAsSynced } = useOfflineStorage()
   const mapRef = useRef<any>(null)
 
   const handleMapClick = (lat: number, lng: number) => {
@@ -53,6 +53,15 @@ function HomeContent() {
       })
       setShowForm(false)
       setSelectedLocation(null)
+    }
+  }
+
+  const handleSyncPending = async () => {
+    const pending = collections.filter(c => !c.synced)
+    for (const c of pending) {
+      if (c.id !== undefined) {
+        await markAsSynced(c.id)
+      }
     }
   }
 
@@ -90,13 +99,13 @@ function HomeContent() {
 
         {/* Error Banner */}
         {locationError && (
-          <div className="absolute top-4 left-4 right-4 bg-destructive text-white px-4 py-3 rounded-lg text-sm z-[400] shadow-lg">
+          <div className="absolute top-4 left-4 right-4 bg-destructive text-white px-4 py-3 rounded-lg text-sm z-[1000] shadow-lg">
             {locationError}
           </div>
         )}
 
         {/* Sync Status Indicator */}
-        <div className="absolute top-4 right-4 flex items-center gap-2 bg-white dark:bg-slate-900 px-3 py-2 rounded-lg shadow z-[400]">
+        <div className="absolute top-4 right-4 flex items-center gap-2 bg-white dark:bg-slate-900 px-3 py-2 rounded-lg shadow z-[1000]">
           <div
             className={`w-2 h-2 rounded-full ${
               syncStatus === 'synced'
@@ -112,7 +121,7 @@ function HomeContent() {
         </div>
 
         {/* Collections Count */}
-        <div className="absolute bottom-32 left-4 bg-white dark:bg-slate-900 px-3 py-2 rounded-lg shadow text-sm font-medium z-[400]">
+        <div className="absolute bottom-32 left-4 bg-white dark:bg-slate-900 px-3 py-2 rounded-lg shadow text-sm font-medium z-[1000]">
           {collections.length} coleta{collections.length !== 1 ? 's' : ''}
         </div>
 
@@ -130,7 +139,7 @@ function HomeContent() {
         <button
           onClick={handleQuickCollect}
           disabled={!location}
-          className="absolute bottom-6 left-1/2 transform -translate-x-1/2 z-[400] bg-blue-600 hover:bg-blue-700 text-white rounded-full w-16 h-16 flex items-center justify-center shadow-xl active:scale-95 transition-transform disabled:opacity-50 disabled:cursor-not-allowed"
+          className="absolute bottom-6 left-1/2 transform -translate-x-1/2 z-[1000] bg-blue-600 hover:bg-blue-700 text-white rounded-full w-16 h-16 flex items-center justify-center shadow-xl active:scale-95 transition-transform disabled:opacity-50 disabled:cursor-not-allowed"
           aria-label="Registrar nova coleta"
         >
           <span className="text-3xl leading-none">+</span>
@@ -150,7 +159,7 @@ function HomeContent() {
       )}
 
       {/* Collections List Panel */}
-      <CollectionList collections={collections} onDelete={deleteCollection} />
+      <CollectionList collections={collections} onDelete={deleteCollection} onSync={handleSyncPending} />
     </main>
   )
 }

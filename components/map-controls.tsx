@@ -16,7 +16,7 @@ export function MapControls({
   isCentering,
 }: MapControlsProps) {
   return (
-    <div className="absolute bottom-32 right-4 flex flex-col gap-3 z-50">
+    <div className="absolute bottom-32 right-4 flex flex-col gap-3 z-[1000]">
       {/* Center Location Button */}
       <button
         onClick={onCenterClick}

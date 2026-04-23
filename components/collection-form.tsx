@@ -72,7 +72,7 @@ export function CollectionForm({ location, onSubmit, onClose }: CollectionFormPr
   }
 
   return (
-    <div className="fixed inset-0 bg-black/50 flex items-end z-50 animate-in fade-in">
+    <div className="fixed inset-0 bg-black/50 flex items-end z-[1000] animate-in fade-in">
       <div className="w-full bg-white dark:bg-slate-900 rounded-t-2xl shadow-lg animate-in slide-in-from-bottom-6 max-h-[90vh] overflow-y-auto">
         {/* Header */}
         <div className="sticky top-0 bg-white dark:bg-slate-900 border-b border-gray-200 dark:border-slate-800 p-4 flex items-center justify-between">
