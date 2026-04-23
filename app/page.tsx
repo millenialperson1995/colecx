@@ -9,6 +9,7 @@ import { useGeolocation } from '@/hooks/use-geolocation'
 import { useOfflineStorage } from '@/hooks/use-offline-storage'
 import { AuthWrapper } from '@/components/auth-wrapper'
 import { useAuth } from '@/hooks/use-auth'
+import { databases, ID } from '@/lib/appwrite'
 
 // Importa MapContainer apenas no cliente (Leaflet não suporta SSR)
 const MapContainer = dynamic(
@@ -60,9 +61,27 @@ function HomeContent() {
 
   const handleSyncPending = async () => {
     const pending = collections.filter(c => !c.synced)
+    const DB_ID = process.env.NEXT_PUBLIC_APPWRITE_DATABASE_ID || ''
+    const TABLE_NAME = process.env.NEXT_PUBLIC_APPWRITE_TABLE_NAME || ''
+
     for (const c of pending) {
       if (c.id !== undefined) {
-        await markAsSynced(c.id)
+        try {
+          if (DB_ID && TABLE_NAME) {
+            await databases.createDocument(DB_ID, TABLE_NAME, ID.unique(), {
+              number: c.number,
+              clientName: c.clientName,
+              collectionCode: c.collectionCode,
+              latitude: c.latitude,
+              longitude: c.longitude,
+              timestamp: c.timestamp,
+            })
+          }
+          await markAsSynced(c.id)
+        } catch (error) {
+          console.error('Falha ao sincronizar com Appwrite', error)
+          throw error // Aciona o catch() lá no CollectionList para mostrar toast de erro
+        }
       }
     }
   }

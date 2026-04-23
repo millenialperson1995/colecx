@@ -157,17 +157,6 @@ export default function LoginPage() {
             </Button>
           </form>
 
-          {/* Demo Info */}
-          <div className="bg-blue-50 dark:bg-blue-900/20 px-4 py-3 rounded-lg border border-blue-200 dark:border-blue-800">
-            <p className="text-xs text-blue-600 dark:text-blue-400 font-medium mb-2">Demo:</p>
-            <p className="text-xs text-blue-600 dark:text-blue-400">
-              Email: <span className="font-mono">demo@colecx.com</span>
-            </p>
-            <p className="text-xs text-blue-600 dark:text-blue-400">
-              Senha: <span className="font-mono">demo123456</span>
-            </p>
-          </div>
-
           {/* Footer */}
           <p className="text-center text-xs text-gray-500 dark:text-gray-500">
             Aplicativo de coleta com geolocalização em tempo real
