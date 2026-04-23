@@ -141,6 +141,7 @@ export function MapContainer({
           `<div style="font-family: system-ui, sans-serif;">
             <p style="font-weight: 600; margin: 0;">${collection.clientName}</p>
             <p style="font-size: 14px; color: #4b5563; margin: 4px 0 0 0;">Nº ${collection.number}</p>
+            <p style="font-size: 14px; color: #6366f1; font-weight: 500; margin: 4px 0 0 0;">Cód: ${collection.collectionCode}</p>
           </div>`
         )
         .addTo(currentMap)
